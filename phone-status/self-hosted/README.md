@@ -4,7 +4,7 @@
 
 ## 🏗️ 架构
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                     Caddy (反向代理)                      │
 │                  status.dwill.top:7777                   │
@@ -90,7 +90,7 @@ systemctl reload caddy
 
 修改 App 中的 API 地址为：
 
-```
+```text
 https://status.dwill.top:7777/api/update
 ```
 
@@ -98,7 +98,7 @@ API Key 保持不变（或使用你在 .env 中设置的）。
 
 ## 📂 目录结构
 
-```
+```text
 self-hosted/
 ├── docker-compose.yml    # Docker 编排配置
 ├── Dockerfile            # 容器构建文件
@@ -141,9 +141,9 @@ docker exec phone-status cat /app/data/status.json
 ## 📊 API 接口
 
 | 方法 | 路径 | 说明 |
-|------|------|------|
+| ---- | ---- | ---- |
 | GET | `/api/test` | 测试接口 |
-| POST | `/api/update` | 上报手机状态（需要 API Key）|
+| POST | `/api/update` | 上报手机状态（需要 API Key） |
 | GET | `/api/status` | 获取当前状态 |
 | GET | `/api/visit` | 记录访客 |
 | GET | `/api/visitors` | 获取访客统计 |
@@ -158,7 +158,7 @@ docker exec phone-status cat /app/data/status.json
 ## 🔄 与 CF 版本的区别
 
 | 特性 | CF 版本 | 自托管版本 |
-|------|---------|-----------|
+| ---- | ------- | ---------- |
 | 存储 | Cloudflare KV | JSON 文件 |
 | API 路径 | `/status` | `/api/status` |
 | 写入限制 | 1000次/天 | 无限制 |
