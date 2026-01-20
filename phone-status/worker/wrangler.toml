@@ -1,0 +1,15 @@
+name = "phone-status-api-v2"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# 自定义域名路由（可选）
+# routes = [{ pattern = "api.status.dwill.top", custom_domain = true }]
+
+[vars]
+# ⚠️ 部署前务必修改这个密钥！用一个随机字符串
+# 可以用这个生成：openssl rand -hex 32
+API_KEY = "dwill-status-2026-x7k9m2p4q8r1"
+
+[[kv_namespaces]]
+binding = "STATUS_KV"
+id = "a108bc314d6e4935983e7016c2f79c83"

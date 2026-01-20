@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#4a6fa5">
+  <meta name="description" content="实时查看手机状态">
+  <title>手机状态 · Phone Status</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-hover: #f1f5f9;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: 0.2s ease;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .top-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-green));
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+    .header { text-align: center; margin-bottom: 32px; }
+    .header-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 4px; }
+    .header-subtitle { font-size: 0.875rem; color: var(--text-secondary); }
+    .bilibili-link {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+      padding: 6px 14px; background: linear-gradient(135deg, #fb7299, #f45a8d);
+      color: #fff; text-decoration: none; font-size: 0.8125rem; font-weight: 500;
+      border-radius: 20px; transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .bilibili-link:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(251,114,153,0.4); }
+    .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    @media (min-width: 768px) { .main-grid { grid-template-columns: 1.2fr 1fr; } }
+    .card {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
+      overflow: hidden; transition: box-shadow var(--transition);
+    }
+    .card:hover { box-shadow: var(--shadow-md); }
+    .card-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title { font-size: 0.9375rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .card-body { padding: 20px; }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;
+    }
+    .status-badge.online { background: rgba(16,185,129,0.1); color: var(--accent-green); }
+    .status-badge.offline { background: rgba(148,163,184,0.1); color: var(--text-muted); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .status-badge.online .status-dot { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .current-app {
+      display: flex; align-items: center; gap: 16px; padding: 20px;
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border-radius: var(--radius-md); margin-bottom: 20px;
+    }
+    .app-icon {
+      width: 56px; height: 56px; border-radius: var(--radius-md);
+      background: var(--accent-blue); display: flex; align-items: center;
+      justify-content: center; font-size: 1.5rem; color: #fff; flex-shrink: 0;
+    }
+    .app-info h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 2px; }
+    .app-info p { font-size: 0.8125rem; color: var(--text-secondary); }
+    .mood-banner {
+      display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+      border-radius: var(--radius-sm); font-size: 0.8125rem; font-weight: 500; margin-bottom: 16px;
+    }
+    .mood-gaming { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
+    .mood-working { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
+    .mood-slacking { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #5b21b6; }
+    .mood-latenight { background: linear-gradient(135deg, #312e81, #1e1b4b); color: #c7d2fe; }
+    .mood-idle, .mood-normal { background: var(--bg-hover); color: var(--text-secondary); }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card {
+      background: var(--bg-hover); border-radius: var(--radius-md);
+      padding: 16px; text-align: center; transition: background var(--transition);
+    }
+    .stat-card:hover { background: #e2e8f0; }
+    .stat-icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .stat-value { font-size: 1.125rem; font-weight: 700; }
+    .stat-label { font-size: 0.6875rem; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-list { display: flex; flex-direction: column; gap: 12px; }
+    .info-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px;
+      background: var(--bg-hover); border-radius: var(--radius-md); transition: background var(--transition);
+    }
+    .info-item:hover { background: #e2e8f0; }
+    .info-icon {
+      width: 40px; height: 40px; border-radius: var(--radius-sm);
+      background: var(--bg-card); display: flex; align-items: center;
+      justify-content: center; font-size: 1.125rem; flex-shrink: 0; box-shadow: var(--shadow-sm);
+    }
+    .info-content { flex: 1; min-width: 0; }
+    .info-label { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-value { font-size: 0.9375rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .battery-bar { height: 6px; background: #e2e8f0; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+    .battery-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .battery-fill.high { background: linear-gradient(90deg, #10b981, #34d399); }
+    .battery-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .battery-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .top-apps { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+    .top-apps-title { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .top-app-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+    .top-app-item:last-child { border-bottom: none; }
+    .top-app-name { flex: 1; font-size: 0.875rem; }
+    .top-app-time { font-size: 0.8125rem; color: var(--text-secondary); font-weight: 500; }
+    .update-time { text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 16px; }
+    .visitors-stats { display: flex; gap: 16px; }
+    .visitor-stat { text-align: center; }
+    .visitor-stat-value { font-size: 1.25rem; font-weight: 700; }
+    .visitor-stat-label { font-size: 0.625rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .visitor-list { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto; }
+    .visitor-list::-webkit-scrollbar { width: 4px; }
+    .visitor-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+    .visitor-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--bg-hover); border-radius: var(--radius-sm); transition: background var(--transition); }
+    .visitor-item:hover { background: #e2e8f0; }
+    .visitor-avatar { width: 36px; height: 36px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; color: #fff; flex-shrink: 0; }
+    .visitor-info { flex: 1; min-width: 0; }
+    .visitor-location { font-size: 0.875rem; font-weight: 500; }
+    .visitor-meta { font-size: 0.75rem; color: var(--text-muted); }
+    .visitor-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .visitor-status.online { background: var(--accent-green); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    .visitor-status.offline { background: var(--border-color); }
+    .skeleton { background: linear-gradient(90deg, var(--bg-hover) 25%, #e2e8f0 50%, var(--bg-hover) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm); }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .loading-state { padding: 20px; }
+    .skeleton-app { width: 100%; height: 80px; margin-bottom: 16px; }
+    .skeleton-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .skeleton-stat { height: 80px; }
+    .skeleton-item { height: 56px; margin-bottom: 8px; }
+    .status-message { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; background: linear-gradient(135deg, #faf5ff, #f3e8ff); border-radius: var(--radius-md); margin-bottom: 16px; border-left: 3px solid var(--accent-purple); }
+    .status-message-text { font-size: 0.875rem; color: #6b21a8; line-height: 1.4; }
+    @media (max-width: 480px) {
+      .container { padding: 16px 12px 32px; }
+      .header-title { font-size: 1.5rem; }
+      .stats-grid { gap: 8px; }
+      .stat-card { padding: 12px 8px; }
+      .stat-value { font-size: 1rem; }
+      .current-app { padding: 16px; gap: 12px; }
+      .app-icon { width: 48px; height: 48px; font-size: 1.25rem; }
+      .app-info h2 { font-size: 1.125rem; }
+      .card-body { padding: 16px; }
+    }
+    @media (min-width: 1024px) {
+      .container { padding: 40px 24px 60px; }
+      .header { margin-bottom: 40px; }
+      .main-grid { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="container">
+    <header class="header">
+      <h1 class="header-title">📡 手机状态</h1>
+      <p class="header-subtitle">实时同步 · Real-time Status</p>
+      <a href="https://space.bilibili.com/631853247" target="_blank" rel="noopener" class="bilibili-link">📺 Le_Ho（哔哩哔哩）</a>
+    </header>
+    <main class="main-grid">
+      <section class="card" id="status-card">
+        <div class="loading-state">
+          <div class="skeleton skeleton-app"></div>
+          <div class="skeleton-stats"><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div></div>
+          <div class="skeleton skeleton-item"></div><div class="skeleton skeleton-item"></div><div class="skeleton skeleton-item"></div>
+        </div>
+      </section>
+      <aside class="card" id="visitors-card">
+        <div class="card-header">
+          <span class="card-title">👀 过客</span>
+          <div class="visitors-stats" id="visitors-stats">
+            <div class="visitor-stat"><div class="visitor-stat-value">-</div><div class="visitor-stat-label">在线</div></div>
+            <div class="visitor-stat"><div class="visitor-stat-value">-</div><div class="visitor-stat-label">今日</div></div>
+            <div class="visitor-stat"><div class="visitor-stat-value">-</div><div class="visitor-stat-label">总计</div></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="visitor-list" id="visitor-list">
+            <div class="skeleton skeleton-item"></div><div class="skeleton skeleton-item"></div><div class="skeleton skeleton-item"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const API_URL = 'https://phone-status-api-v2.zhangtao3788.workers.dev';
+
+    const appNameMap = {
+      'com.tencent.mm': '微信', 'com.tencent.mobileqq': 'QQ', 'com.sina.weibo': '微博',
+      'com.zhihu.android': '知乎', 'com.xingin.xhs': '小红书', 'org.telegram.messenger': 'Telegram',
+      'com.tencent.tmgp.sgame': '王者荣耀', 'com.tencent.tmgp.pubgmhd': '和平精英',
+      'com.miHoYo.Yuanshen': '原神', 'com.miHoYo.hkrpg': '崩坏：星穹铁道', 'tv.danmaku.bili': '哔哩哔哩',
+      'com.ss.android.ugc.aweme': '抖音', 'com.netease.cloudmusic': '网易云音乐',
+      'com.microsoft.emmx': 'Edge', 'com.android.chrome': 'Chrome', 'com.quark.browser': '夸克',
+      'com.taobao.taobao': '淘宝', 'com.taobao.idlefish': '闲鱼', 'com.xunmeng.pinduoduo': '拼多多',
+      'com.sankuai.meituan': '美团', 'com.eg.android.AlipayGphone': '支付宝',
+      'com.github.android': 'GitHub', 'com.bbk.launcher2': '桌面', 'com.vivo.launcher': '桌面',
+    };
+
+    const moodConfig = {
+      gaming: { text: '⚔️ 战斗中', class: 'mood-gaming' },
+      working: { text: '💼 认真工作', class: 'mood-working' },
+      slacking: { text: '🐟 摸鱼中', class: 'mood-slacking' },
+      idle: { text: '😴 休息中', class: 'mood-idle' },
+      normal: { text: '📱 使用中', class: 'mood-normal' },
+    };
+
+    function getAppName(pkg, custom) { return custom || appNameMap[pkg] || pkg.split('.').pop(); }
+
+    function formatTime(ts) {
+      const diff = Date.now() - ts;
+      if (diff < 60000) return '刚刚';
+      if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
+      return new Date(ts).toLocaleString('zh-CN');
+    }
+
+    function formatMinutes(m) {
+      if (m < 60) return m + '分钟';
+      const h = Math.floor(m / 60), min = m % 60;
+      return min > 0 ? h + '小时' + min + '分' : h + '小时';
+    }
+
+    function renderStatus(s) {
+      const online = Date.now() - s.timestamp < 300000;
+      const appName = s.appName || getAppName(s.app);
+      const batteryClass = s.battery > 50 ? 'high' : s.battery > 20 ? 'medium' : 'low';
+      const device = (s.device || '').replace('Vivo V2405A', 'vivo X200 Pro');
+      let moodInfo = moodConfig[s.mood] || moodConfig.normal;
+      if (s.isLateNight) moodInfo = { text: '🦉 夜猫子模式', class: 'mood-latenight' };
+
+      let batteryText = s.battery + '%';
+      if (s.battery <= 10) batteryText += ' 😱';
+      else if (s.charging) batteryText += ' ⚡';
+
+      const topAppsHtml = s.topApps && s.topApps.length ? `
+        <div class="top-apps">
+          <div class="top-apps-title">📊 今日最常用</div>
+          ${s.topApps.map((a, i) => `
+            <div class="top-app-item">
+              <span>${['🥇','🥈','🥉'][i]} ${a.name}</span>
+              <span class="top-app-time">${formatMinutes(a.minutes)}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : '';
+
+      document.getElementById('status-card').innerHTML = `
+        <div class="card-header">
+          <span class="card-title">📱 使用中</span>
+          <span class="status-badge ${online ? 'online' : 'offline'}">
+            <span class="status-dot"></span>${online ? '在线' : '离线'}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="mood-banner ${moodInfo.class}">${moodInfo.text}</div>
+          ${s.statusMessage ? `<div class="status-message"><span>💭</span><span class="status-message-text">${s.statusMessage}</span></div>` : ''}
+          <div class="current-app">
+            <div class="app-icon">📱</div>
+            <div class="app-info">
+              <h2>${s.screen ? appName : '屏幕已关闭'}</h2>
+              <p>${online ? '正在使用' : '离线'}</p>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon">📱</div><div class="stat-value">${formatMinutes(s.screenTime || 0)}</div><div class="stat-label">今日屏幕</div></div>
+            <div class="stat-card"><div class="stat-icon">🎮</div><div class="stat-value">${formatMinutes(s.gameTime || 0)}</div><div class="stat-label">今日游戏</div></div>
+            <div class="stat-card"><div class="stat-icon">🚶</div><div class="stat-value">${(s.steps || 0).toLocaleString()}</div><div class="stat-label">今日步数</div></div>
+          </div>
+          <div class="info-list">
+            <div class="info-item">
+              <div class="info-icon">${s.charging ? '⚡' : '🔋'}</div>
+              <div class="info-content">
+                <div class="info-label">电量${s.batteryTemp ? ' · ' + s.batteryTemp + '°C' : ''}</div>
+                <div class="info-value">${batteryText}</div>
+                <div class="battery-bar"><div class="battery-fill ${batteryClass}" style="width:${s.battery}%"></div></div>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">${s.wifi ? '📶' : '📵'}</div>
+              <div class="info-content">
+                <div class="info-label">网络</div>
+                <div class="info-value">${s.networkType || 'WiFi'}${s.wifiName ? ' · ' + s.wifiName : ''}</div>
+              </div>
+            </div>
+            ${s.location ? `<div class="info-item"><div class="info-icon">📍</div><div class="info-content"><div class="info-label">位置</div><div class="info-value">${s.location}</div></div></div>` : ''}
+            ${s.music ? `<div class="info-item"><div class="info-icon">🎵</div><div class="info-content"><div class="info-label">正在播放</div><div class="info-value">${s.music}${s.musicArtist ? ' - ' + s.musicArtist : ''}</div></div></div>` : ''}
+            <div class="info-item"><div class="info-icon">📱</div><div class="info-content"><div class="info-label">设备</div><div class="info-value">${device}</div></div></div>
+          </div>
+          ${topAppsHtml}
+          <div class="update-time">更新于 ${formatTime(s.timestamp)}</div>
+        </div>
+      `;
+    }
+
+    function renderVisitors(stats) {
+      document.getElementById('visitors-stats').innerHTML = `
+        <div class="visitor-stat"><div class="visitor-stat-value">${stats.online}</div><div class="visitor-stat-label">在线</div></div>
+        <div class="visitor-stat"><div class="visitor-stat-value">${stats.today}</div><div class="visitor-stat-label">今日</div></div>
+        <div class="visitor-stat"><div class="visitor-stat-value">${stats.total}</div><div class="visitor-stat-label">总计</div></div>
+      `;
+      const listHtml = stats.recentVisitors.length ? stats.recentVisitors.map(v => {
+        const online = Date.now() - v.lastVisit < 300000;
+        const browser = v.ua.includes('Edg') ? 'Edge' : v.ua.includes('Chrome') ? 'Chrome' : v.ua.includes('Firefox') ? 'Firefox' : '浏览器';
+        return `
+          <div class="visitor-item">
+            <div class="visitor-avatar">${browser[0]}</div>
+            <div class="visitor-info">
+              <div class="visitor-location">${v.city || '未知'} · ${browser}</div>
+              <div class="visitor-meta">${formatTime(v.lastVisit)}</div>
+            </div>
+            <div class="visitor-status ${online ? 'online' : 'offline'}"></div>
+          </div>
+        `;
+      }).join('') : '<div style="text-align:center;color:var(--text-muted);padding:20px">暂无访客</div>';
+      document.getElementById('visitor-list').innerHTML = listHtml;
+    }
+
+    async function fetchStatus() {
+      try {
+        const res = await fetch(API_URL + '/status');
+        if (res.ok) renderStatus(await res.json());
+      } catch (e) { console.error('Fetch status error:', e); }
+    }
+
+    async function fetchVisitors() {
+      try {
+        const res = await fetch(API_URL + '/visitors');
+        if (res.ok) renderVisitors(await res.json());
+      } catch (e) { console.error('Fetch visitors error:', e); }
+    }
+
+    async function recordVisit() {
+      try { await fetch(API_URL + '/visit'); } catch (e) {}
+    }
+
+    fetchStatus();
+    recordVisit();
+    fetchVisitors();
+    setInterval(fetchStatus, 15000);
+    setInterval(fetchVisitors, 30000);
+  </script>
+</body>
+</html>

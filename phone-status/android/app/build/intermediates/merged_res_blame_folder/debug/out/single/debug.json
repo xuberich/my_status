@@ -1,0 +1,70 @@
+[
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\drawable_status_dot_online.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\drawable\\status_dot_online.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\drawable_status_dot_offline.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\drawable\\status_dot_offline.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\drawable_input_background.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\drawable\\input_background.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\drawable_button_primary.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\drawable\\button_primary.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\layout_activity_main.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\drawable_card_background.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\drawable\\card_background.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\drawable_button_secondary.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\drawable\\button_secondary.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\mipmap-hdpi_ic_launcher.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\mipmap-hdpi\\ic_launcher.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\mipmap-hdpi_ic_launcher_round.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\mipmap-hdpi\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "top.dwill.phonestatus.app-merged_res-4:/drawable_status_dot_online.xml.flat",
+        "source": "top.dwill.phonestatus.app-main-6:/drawable/status_dot_online.xml"
+    },
+    {
+        "merged": "top.dwill.phonestatus.app-merged_res-4:/layout_activity_main.xml.flat",
+        "source": "top.dwill.phonestatus.app-main-6:/layout/activity_main.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-merged_res-4:\\drawable_button_outline.xml.flat",
+        "source": "E:\\gradle_cache\\daemon\\8.2\\top.dwill.phonestatus.app-main-6:\\drawable\\button_outline.xml"
+    },
+    {
+        "merged": "top.dwill.phonestatus.app-merged_res-4:/drawable_input_background.xml.flat",
+        "source": "top.dwill.phonestatus.app-main-6:/drawable/input_background.xml"
+    },
+    {
+        "merged": "top.dwill.phonestatus.app-merged_res-4:/drawable_status_dot_offline.xml.flat",
+        "source": "top.dwill.phonestatus.app-main-6:/drawable/status_dot_offline.xml"
+    }
+]
