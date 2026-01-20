@@ -12,7 +12,7 @@
 
 ## 📦 项目结构
 
-```
+```text
 phone-status/
 ├── frontend/           # 前端网页（单 HTML 文件）
 │   └── index.html     # 亮色主题 + Arctic Frost 配色
@@ -47,7 +47,7 @@ phone-status/
 
 ### 配置信息
 
-```
+```text
 Worker URL: https://phone-status-api-v2.zhangtao3788.workers.dev/update
 API Key: dwill-status-2026-x7k9m2p4q8r1
 KV Namespace ID: a108bc314d6e4935983e7016c2f79c83
@@ -122,17 +122,20 @@ Pages Project: phone-status
 ## 🔧 技术栈
 
 ### 前端
+
 - 纯 HTML + CSS + JavaScript（无框架）
 - CSS 变量系统
 - Fetch API
 - 响应式设计
 
 ### 后端
+
 - Cloudflare Workers（TypeScript）
 - Cloudflare KV（键值存储）
 - OpenStreetMap Nominatim（地理编码）
 
 ### Android
+
 - Kotlin
 - Material Components
 - CardView
@@ -144,15 +147,18 @@ Pages Project: phone-status
 ## 📝 API 接口
 
 ### POST /update
+
 上报手机状态
 
 **Headers**:
-```
+
+```text
 Authorization: Bearer {API_KEY}
 Content-Type: application/json
 ```
 
 **Body**:
+
 ```json
 {
   "app": "com.tencent.mobileqq",
@@ -184,9 +190,11 @@ Content-Type: application/json
 ```
 
 ### GET /status
+
 获取当前状态
 
 **Response**:
+
 ```json
 {
   "app": "com.tencent.mobileqq",
@@ -199,12 +207,15 @@ Content-Type: application/json
 ```
 
 ### GET /visit
+
 记录访客（自动调用）
 
 ### GET /visitors
+
 获取访客统计
 
 **Response**:
+
 ```json
 {
   "online": 1,

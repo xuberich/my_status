@@ -1,2 +1,55 @@
-/.vscode
-/skills
+# ===== 编辑器/IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ===== Kiro 编辑器 =====
+.kiro/
+.shared/
+
+# ===== 本项目不需要的文件夹 =====
+skills/
+
+# ===== Node.js / Worker =====
+node_modules/
+dist/
+.wrangler/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== Android =====
+# Gradle
+.gradle/
+build/
+*/build/
+*/*/build/
+
+# Local configuration (包含本地 SDK 路径)
+local.properties
+
+# Android Studio
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# APK 签名
+*.jks
+*.keystore
+
+# ===== 其他 =====
+# 环境变量文件（如有）
+.env
+.env.local
+.env.*.local
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
