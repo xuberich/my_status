@@ -3,11 +3,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# 复制后端代码
-COPY server/package*.json ./
+# 复制后端代码（从 phone-status 目录的视角）
+COPY self-hosted/server/package*.json ./
 RUN npm ci
 
-COPY server/ ./
+COPY self-hosted/server/ ./
 RUN npm run build
 
 # ==================== 运行阶段 ====================
@@ -16,7 +16,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # 安装生产依赖
-COPY server/package*.json ./
+COPY self-hosted/server/package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
 # 复制编译后的代码
