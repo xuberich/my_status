@@ -53,3 +53,8 @@ captures/
 *.tmp
 *.temp
 *.bak
+
+# ===== Self-hosted =====
+# 不提交本地生产环境配置
+phone-status/self-hosted/.env
+phone-status/self-hosted/data/

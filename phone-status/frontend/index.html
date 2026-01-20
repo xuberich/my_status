@@ -211,7 +211,15 @@
   </div>
 
   <script>
-    const API_URL = 'https://phone-status-api-v2.zhangtao3788.workers.dev';
+    // 自动检测 API 地址
+    // 自托管时 API 路径带 /api 前缀，CF Worker 不带
+    const isSelfHosted = window.location.hostname === 'localhost' 
+      || window.location.hostname.includes('dwill.top')
+      || window.location.port !== '';  // 非标准端口也视为自托管
+    
+    const API_BASE = isSelfHosted
+      ? window.location.origin + '/api'  // 自托管：/api/status
+      : 'https://phone-status-api-v2.zhangtao3788.workers.dev';  // CF Worker：/status
 
     const appNameMap = {
       'com.tencent.mm': '微信', 'com.tencent.mobileqq': 'QQ', 'com.sina.weibo': '微博',
@@ -346,20 +354,20 @@
 
     async function fetchStatus() {
       try {
-        const res = await fetch(API_URL + '/status');
+        const res = await fetch(API_BASE + '/status');
         if (res.ok) renderStatus(await res.json());
       } catch (e) { console.error('Fetch status error:', e); }
     }
 
     async function fetchVisitors() {
       try {
-        const res = await fetch(API_URL + '/visitors');
+        const res = await fetch(API_BASE + '/visitors');
         if (res.ok) renderVisitors(await res.json());
       } catch (e) { console.error('Fetch visitors error:', e); }
     }
 
     async function recordVisit() {
-      try { await fetch(API_URL + '/visit'); } catch (e) {}
+      try { await fetch(API_BASE + '/visit'); } catch (e) {}
     }
 
     fetchStatus();

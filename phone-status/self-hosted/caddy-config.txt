@@ -1,0 +1,7 @@
+# Phone Status 自托管 - Caddy 配置
+# 将以下内容添加到你的 Caddyfile 中
+
+status.dwill.top:7777 {
+    import cloudflare2
+    reverse_proxy localhost:9529
+}
