@@ -20,6 +20,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 import android.provider.Settings
+import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -30,9 +31,8 @@ import kotlin.coroutines.resume
 
 object StatusCollector {
 
-    // 步数计数器
+    // 步数计数器（直接使用传感器返回的累计步数）
     var todaySteps: Int = 0
-    private var initialSteps: Int = -1
 
     // 游戏包名列表
     private val gamePackages = setOf(
@@ -63,50 +63,166 @@ object StatusCollector {
         "com.miHoYo.hkrpg" to "崩坏：星穹铁道",
         "tv.danmaku.bili" to "哔哩哔哩",
         "com.ss.android.ugc.aweme" to "抖音",
+        "com.kuaishou.nebula" to "快手",
         "com.netease.cloudmusic" to "网易云音乐",
         "com.tencent.qqmusic" to "QQ音乐",
+        "com.kugou.android" to "酷狗音乐",
         "com.microsoft.emmx" to "Edge",
         "com.android.chrome" to "Chrome",
         "com.quark.browser" to "夸克",
+        "com.UCMobile" to "UC浏览器",
         "com.taobao.taobao" to "淘宝",
         "com.taobao.idlefish" to "闲鱼",
         "com.jingdong.app.mall" to "京东",
         "com.xunmeng.pinduoduo" to "拼多多",
         "com.sankuai.meituan" to "美团",
+        "com.dianping.v1" to "大众点评",
         "com.eg.android.AlipayGphone" to "支付宝",
         "com.android.settings" to "设置",
         "com.android.vending" to "Play商店",
         "com.bbk.launcher2" to "桌面",
         "com.vivo.launcher" to "桌面",
-        "top.dwill.phonestatus" to "状态同步"
+        "com.vivo.permissionmanager" to "权限管理",
+        "com.android.permissioncontroller" to "权限管理",
+        "com.vivo.browser" to "vivo浏览器",
+        "com.vivo.email" to "邮件",
+        "com.android.mms" to "短信",
+        "com.android.dialer" to "电话",
+        "com.android.contacts" to "联系人",
+        "com.android.camera" to "相机",
+        "com.vivo.gallery" to "相册",
+        "com.android.gallery3d" to "相册",
+        "com.vivo.weather" to "天气",
+        "com.vivo.appstore" to "应用商店",
+        "com.android.systemui" to "系统界面",
+        "top.dwill.phonestatus" to "状态同步",
+        "top.dwill.phonestatus.selfhosted" to "状态同步自托管"
+    )
+    
+    // 需要过滤掉的系统应用（不应该显示为"当前使用"）
+    private val systemPackages = setOf(
+        // 系统核心
+        "com.android.systemui",
+        "com.android.launcher",
+        "com.android.launcher3",
+        "com.android.packageinstaller",
+        "com.google.android.packageinstaller",
+        "com.android.permissioncontroller",
+        "com.android.settings",
+        "com.android.inputmethod.latin",
+        // vivo 系统
+        "com.vivo.permissionmanager",
+        "com.vivo.launcher",
+        "com.bbk.launcher2",
+        "com.vivo.daemonService",
+        "com.vivo.assistant",
+        "com.vivo.smartunlock",
+        "com.iqoo.secure",
+        // 本 App
+        "top.dwill.phonestatus",
+        "top.dwill.phonestatus.selfhosted"
     )
 
     fun initStepCounter(context: Context) {
         val sm = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        Log.d("StatusCollector", "========== 步数传感器初始化 ==========")
+        
         if (stepSensor != null) {
+            Log.d("StatusCollector", "✓ 找到步数传感器: ${stepSensor.name}")
+            
             sm.registerListener(object : SensorEventListener {
                 override fun onSensorChanged(event: SensorEvent) {
-                    val totalSteps = event.values[0].toInt()
-                    if (initialSteps < 0) initialSteps = totalSteps
-                    todaySteps = totalSteps - initialSteps
+                    // 直接使用传感器返回的累计步数
+                    todaySteps = event.values[0].toInt()
+                    Log.d("StatusCollector", "步数更新: $todaySteps")
                 }
-                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+                    Log.d("StatusCollector", "步数传感器精度变化: $accuracy")
+                }
             }, stepSensor, SensorManager.SENSOR_DELAY_UI)
+        } else {
+            Log.e("StatusCollector", "✗ 未找到步数传感器！")
         }
     }
 
     fun getCurrentApp(context: Context): String {
         val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val endTime = System.currentTimeMillis()
-        val beginTime = endTime - 60000
-        val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, beginTime, endTime)
-        if (stats.isNullOrEmpty()) return "unknown"
-        val recentApp = stats.maxByOrNull { it.lastTimeUsed }
-        return recentApp?.packageName ?: "unknown"
+        // 查询最近 5 分钟的事件
+        val startTime = endTime - 5 * 60 * 1000
+        
+        Log.d("StatusCollector", "========== App 检测 ==========")
+        
+        // 方法1：使用 queryEvents 获取最近的前台 App 事件（最准确）
+        try {
+            val events = usm.queryEvents(startTime, endTime)
+            var lastForegroundApp: String? = null
+            var lastForegroundTime: Long = 0
+            
+            val event = android.app.usage.UsageEvents.Event()
+            while (events.hasNextEvent()) {
+                events.getNextEvent(event)
+                // MOVE_TO_FOREGROUND = 1，表示 App 进入前台
+                if (event.eventType == android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                    // 过滤系统应用
+                    if (!systemPackages.contains(event.packageName)) {
+                        if (event.timeStamp > lastForegroundTime) {
+                            lastForegroundTime = event.timeStamp
+                            lastForegroundApp = event.packageName
+                        }
+                    }
+                }
+            }
+            
+            if (lastForegroundApp != null) {
+                val timeDiff = (endTime - lastForegroundTime) / 1000
+                Log.d("StatusCollector", "通过事件检测到前台App: $lastForegroundApp (${timeDiff}秒前进入前台)")
+                
+                // 如果超过5分钟没有新的前台事件，可能是一直在同一个App里
+                // 这种情况下仍然返回最后进入前台的App
+                return lastForegroundApp
+            }
+            Log.d("StatusCollector", "未检测到最近5分钟内的前台事件")
+        } catch (e: Exception) {
+            Log.e("StatusCollector", "queryEvents 失败", e)
+        }
+        
+        // 方法2：回退到 queryUsageStats（作为备用）
+        Log.d("StatusCollector", "使用备用方法 queryUsageStats")
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        val todayStart = calendar.timeInMillis
+        
+        val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, todayStart, endTime)
+        
+        if (stats.isNullOrEmpty()) {
+            Log.e("StatusCollector", "✗ 没有获取到任何 UsageStats 数据！请检查使用情况权限")
+            return "unknown"
+        }
+        
+        // 按最后使用时间排序
+        val sortedStats = stats
+            .filter { !systemPackages.contains(it.packageName) }
+            .sortedByDescending { it.lastTimeUsed }
+        
+        val recentApp = sortedStats.firstOrNull()
+        if (recentApp != null) {
+            val timeDiff = (endTime - recentApp.lastTimeUsed) / 1000
+            Log.d("StatusCollector", "备用方法检测: ${recentApp.packageName} (${timeDiff}秒前)")
+            if (timeDiff <= 300) { // 5分钟内
+                return recentApp.packageName
+            }
+        }
+        
+        Log.d("StatusCollector", "检测结果: unknown")
+        return "unknown"
     }
-
+    
     fun getAppDisplayName(packageName: String): String {
+        if (packageName == "unknown") return "未知应用"
         return appNameMap[packageName] ?: packageName.substringAfterLast(".")
     }
 
@@ -127,7 +243,11 @@ object StatusCollector {
         for (stat in stats) {
             totalTime += stat.totalTimeInForeground
         }
-        return (totalTime / 60000).toInt()
+        val minutes = (totalTime / 60000).toInt()
+        
+        // 限制最大值为当天已过的分钟数（避免系统统计异常导致超过24小时）
+        val maxMinutesToday = ((endTime - startTime) / 60000).toInt()
+        return minOf(minutes, maxMinutesToday)
     }
 
     // 获取今日游戏时长（分钟）
@@ -288,20 +408,152 @@ object StatusCollector {
         } catch (e: Exception) { "" }
     }
 
-    suspend fun getLocation(context: Context): Pair<Double, Double>? {
+    /**
+     * 获取位置信息
+     * @return LocationResult 包含城市名（如果本地解析成功）或经纬度（供服务端解析）
+     */
+    data class LocationResult(
+        val city: String? = null,      // 城市名
+        val source: String? = null     // 来源：local/amap
+    )
+    
+    suspend fun getLocation(context: Context): LocationResult? {
+        Log.d("StatusCollector", "开始获取位置...")
         return try {
             val client: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-            suspendCancellableCoroutine { cont ->
+            
+            // 1. 先尝试获取实时位置
+            var location = suspendCancellableCoroutine<android.location.Location?> { cont ->
                 try {
+                    Log.d("StatusCollector", "请求 GPS 实时位置...")
                     client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, CancellationTokenSource().token)
-                        .addOnSuccessListener { location ->
-                            if (location != null) cont.resume(Pair(location.latitude, location.longitude))
-                            else cont.resume(null)
+                        .addOnSuccessListener { loc -> 
+                            Log.d("StatusCollector", "GPS 实时位置: ${loc?.latitude}, ${loc?.longitude}")
+                            cont.resume(loc) 
                         }
-                        .addOnFailureListener { cont.resume(null) }
-                } catch (e: SecurityException) { cont.resume(null) }
+                        .addOnFailureListener { e -> 
+                            Log.e("StatusCollector", "GPS 实时位置获取失败: ${e.message}")
+                            cont.resume(null) 
+                        }
+                } catch (e: SecurityException) { 
+                    Log.e("StatusCollector", "GPS 权限异常: ${e.message}")
+                    cont.resume(null) 
+                }
             }
-        } catch (e: Exception) { null }
+            
+            // 2. 如果实时位置失败，尝试获取上次已知位置
+            if (location == null) {
+                Log.d("StatusCollector", "实时位置获取失败，尝试获取上次已知位置...")
+                location = suspendCancellableCoroutine { cont ->
+                    try {
+                        client.lastLocation
+                            .addOnSuccessListener { loc ->
+                                Log.d("StatusCollector", "上次已知位置: ${loc?.latitude}, ${loc?.longitude}")
+                                cont.resume(loc)
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("StatusCollector", "上次已知位置获取失败: ${e.message}")
+                                cont.resume(null)
+                            }
+                    } catch (e: SecurityException) {
+                        Log.e("StatusCollector", "获取上次位置权限异常: ${e.message}")
+                        cont.resume(null)
+                    }
+                }
+            }
+            
+            if (location == null) {
+                Log.w("StatusCollector", "无法获取任何位置信息，请检查位置权限和GPS是否开启")
+                return null
+            }
+            
+            Log.d("StatusCollector", "成功获取位置: ${location.latitude}, ${location.longitude}")
+            
+            // 1. 首先尝试 Android Geocoder 本地解析
+            val localCity = try {
+                val geocoder = android.location.Geocoder(context, java.util.Locale.CHINA)
+                if (android.location.Geocoder.isPresent()) {
+                    val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                    if (!addresses.isNullOrEmpty()) {
+                        val addr = addresses[0]
+                        var city = addr.locality ?: addr.adminArea ?: addr.subAdminArea
+                        if (city != null && city.endsWith("市")) {
+                            city = city.dropLast(1)
+                        }
+                        city
+                    } else null
+                } else null
+            } catch (e: Exception) {
+                Log.d("StatusCollector", "Geocoder 解析失败: ${e.message}")
+                null
+            }
+            
+            if (localCity != null) {
+                Log.d("StatusCollector", "位置解析成功(Android Geocoder): $localCity")
+                return LocationResult(city = localCity, source = "local")
+            }
+            
+            // 2. Android Geocoder 失败，尝试高德 API（手机端是国内网络，可以直接访问）
+            Log.d("StatusCollector", "Geocoder 失败，尝试高德 API...")
+            val amapCity = try {
+                val prefs = context.getSharedPreferences("config", Context.MODE_PRIVATE)
+                val amapKey = prefs.getString("amap_key", "") ?: ""
+                Log.d("StatusCollector", "高德 API Key: ${if (amapKey.isNotEmpty()) "${amapKey.take(8)}..." else "未配置"}")
+                
+                if (amapKey.isNotEmpty()) {
+                    val url = "https://restapi.amap.com/v3/geocode/regeo?location=${location.longitude},${location.latitude}&key=$amapKey&output=json"
+                    Log.d("StatusCollector", "高德 API 请求: $url")
+                    val client = okhttp3.OkHttpClient.Builder()
+                        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                        .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                        .build()
+                    val request = okhttp3.Request.Builder().url(url).get().build()
+                    val response = client.newCall(request).execute()
+                    Log.d("StatusCollector", "高德 API 响应: ${response.code}")
+                    
+                    if (response.isSuccessful) {
+                        val json = response.body?.string()
+                        Log.d("StatusCollector", "高德 API 返回: $json")
+                        val geo = com.google.gson.JsonParser.parseString(json).asJsonObject
+                        if (geo.get("status")?.asString == "1") {
+                            val addr = geo.getAsJsonObject("regeocode")?.getAsJsonObject("addressComponent")
+                            var city = addr?.get("city")?.let { 
+                                if (it.isJsonArray) null else it.asString 
+                            } ?: addr?.get("province")?.asString ?: ""
+                            // 去掉"市"后缀
+                            if (city.endsWith("市")) {
+                                city = city.dropLast(1)
+                            }
+                            Log.d("StatusCollector", "高德解析城市: $city")
+                            if (city.isNotEmpty()) city else null
+                        } else {
+                            Log.w("StatusCollector", "高德 API 返回错误状态: ${geo.get("info")?.asString}")
+                            null
+                        }
+                    } else {
+                        Log.w("StatusCollector", "高德 API HTTP 错误: ${response.code}")
+                        null
+                    }
+                } else {
+                    Log.d("StatusCollector", "未配置高德 API Key")
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e("StatusCollector", "高德 API 调用失败", e)
+                null
+            }
+            
+            if (amapCity != null) {
+                Log.d("StatusCollector", "位置解析成功(高德API): $amapCity")
+                return LocationResult(city = amapCity, source = "amap")
+            }
+            
+            Log.d("StatusCollector", "位置解析失败，无法获取城市名")
+            null
+        } catch (e: Exception) { 
+            Log.e("StatusCollector", "获取位置失败", e)
+            null 
+        }
     }
 
     fun getDeviceName(): String {

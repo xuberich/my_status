@@ -4,13 +4,17 @@ import fs from 'fs';
 import path from 'path';
 
 const app = express();
-const PORT = process.env.PORT || 9529;
+const PORT = Number(process.env.PORT) || 9529;
 const API_KEY = process.env.API_KEY || 'dwill-status-2026-x7k9m2p4q8r1';
 
-// 数据存储路径
-const DATA_DIR = process.env.DATA_DIR || '/app/data';
+// 数据存储路径（本地开发时使用相对路径，Docker 中通过环境变量覆盖）
+const DATA_DIR = path.resolve(process.env.DATA_DIR || './data');
 const STATUS_FILE = path.join(DATA_DIR, 'status.json');
 const VISITORS_FILE = path.join(DATA_DIR, 'visitors.json');
+
+// 请求去重：防止短时间内重复处理相同请求
+let lastUpdateTime = 0;
+const UPDATE_THROTTLE_MS = 5000; // 至少间隔 5 秒
 
 // 确保数据目录存在
 if (!fs.existsSync(DATA_DIR)) {
@@ -119,37 +123,24 @@ app.post('/api/update', async (req: Request, res: Response) => {
       return;
     }
 
+    // 请求节流：防止短时间内重复处理
+    const now = Date.now();
+    if (now - lastUpdateTime < UPDATE_THROTTLE_MS) {
+      res.json({ ok: true, throttled: true });
+      return;
+    }
+    lastUpdateTime = now;
+
     const data = req.body;
     if (!data || Object.keys(data).length === 0) {
       res.status(400).json({ error: 'Empty body' });
       return;
     }
 
-    // 地理编码（如果有经纬度）
-    let location = data.location;
-    if (!location && data.lat && data.lon) {
-      try {
-        const geoRes = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${data.lat}&lon=${data.lon}&format=json&accept-language=zh`,
-          { headers: { 'User-Agent': 'PhoneStatus/1.0' } }
-        );
-        if (geoRes.ok) {
-          const geo: any = await geoRes.json();
-          if (geo.address) {
-            const city = geo.address.city || geo.address.state || geo.address.county || '';
-            if (city && !city.endsWith('县')) {
-              location = city;
-            } else {
-              const display = geo.display_name || '';
-              const match = display.match(/([^,]+市)/);
-              location = match ? match[1] : city;
-            }
-          }
-        }
-      } catch (e) {
-        console.error('Geocoding error:', e);
-      }
-    }
+    // 位置信息：手机端已完成地理编码，直接使用
+    // 流程：手机端 GPS → Android Geocoder → 高德 API（手机端调用）
+    const location = data.location || '';
+    const locationSource = location ? '手机端解析' : '无位置数据';
 
     // 构建状态对象
     const status: PhoneStatus = {
@@ -183,7 +174,17 @@ app.post('/api/update', async (req: Request, res: Response) => {
 
     // 保存到文件
     writeJSON(STATUS_FILE, status);
-    console.log(`[UPDATE] Status saved for ${status.appName || status.app}`);
+    
+    // 详细调试信息
+    console.log(`\n========== 状态上报 ==========`);
+    console.log(`App包名: ${status.app}`);
+    console.log(`App名称: ${status.appName || '未设置'}`);
+    console.log(`正在播放: ${status.music || '无'}`);
+    console.log(`播放艺术家: ${status.musicArtist || '无'}`);
+    console.log(`电量: ${status.battery}% 充电: ${status.charging}`);
+    console.log(`位置: ${status.location || '未获取'} (${locationSource || '无位置数据'})`);
+    console.log(`设备: ${status.device || '未知'}`);
+    console.log(`================================\n`);
 
     res.json({ success: true });
   } catch (e: any) {
@@ -278,8 +279,8 @@ app.get('/api/visitors', (_req: Request, res: Response) => {
 
 // ==================== 静态文件托管 ====================
 
-// 托管前端文件
-const FRONTEND_DIR = process.env.FRONTEND_DIR || '/app/frontend';
+// 托管前端文件（本地开发时指向 ../../frontend，Docker 中通过环境变量覆盖）
+const FRONTEND_DIR = path.resolve(process.env.FRONTEND_DIR || '../../frontend');
 app.use(express.static(FRONTEND_DIR));
 
 // SPA 回退
@@ -289,11 +290,13 @@ app.get('*', (_req: Request, res: Response) => {
 
 // ==================== 启动服务器 ====================
 
-app.listen(PORT, () => {
+// 监听 0.0.0.0 以接受来自局域网其他设备的连接
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║           📱 Phone Status Server Started              ║
 ╠═══════════════════════════════════════════════════════╣
+║  Host:     0.0.0.0 (接受所有网络连接)                  ║
 ║  Port:     ${String(PORT).padEnd(42)}║
 ║  API Key:  ${API_KEY.substring(0, 10)}...${' '.repeat(30)}║
 ║  Data:     ${DATA_DIR.padEnd(42)}║

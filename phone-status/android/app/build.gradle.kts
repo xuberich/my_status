@@ -15,6 +15,27 @@ android {
         versionName = "1.0"
     }
 
+    // 产品变体：cf = Cloudflare Workers, selfhosted = 自托管服务器
+    flavorDimensions += "server"
+    productFlavors {
+        create("cf") {
+            dimension = "server"
+            buildConfigField("String", "DEFAULT_API_URL", "\"https://phone-status-api-v2.zhangtao3788.workers.dev/update\"")
+            buildConfigField("String", "DEFAULT_API_KEY", "\"dwill-status-2026-x7k9m2p4q8r1\"")
+        }
+        create("selfhosted") {
+            dimension = "server"
+            applicationIdSuffix = ".selfhosted"
+            // 本地测试：改成你电脑的局域网 IP；部署后改成实际域名
+            buildConfigField("String", "DEFAULT_API_URL", "\"http://192.168.10.104:9529/api/update\"")
+            buildConfigField("String", "DEFAULT_API_KEY", "\"dwill-status-2026-x7k9m2p4q8r1\"")
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

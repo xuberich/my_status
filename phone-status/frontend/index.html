@@ -354,15 +354,43 @@
 
     async function fetchStatus() {
       try {
+        console.log('========== 获取状态 ==========');
+        console.log('API地址:', API_BASE + '/status');
         const res = await fetch(API_BASE + '/status');
-        if (res.ok) renderStatus(await res.json());
+        console.log('响应状态:', res.status);
+        if (res.ok) {
+          const data = await res.json();
+          console.log('========== 接收到的数据 ==========');
+          console.log('App包名:', data.app);
+          console.log('App名称:', data.appName);
+          console.log('电量:', data.battery + '%', data.charging ? '充电中' : '');
+          console.log('正在播放:', data.music || '无');
+          console.log('播放艺术家:', data.musicArtist || '无');
+          console.log('今日步数:', data.steps);
+          console.log('今日屏幕时长:', data.screenTime, '分钟');
+          console.log('今日游戏时长:', data.gameTime, '分钟');
+          console.log('位置:', data.location || '未获取');
+          console.log('设备:', data.device);
+          console.log('WiFi:', data.wifi, data.wifiName || '');
+          console.log('心情:', data.mood);
+          console.log('Top Apps:', data.topApps);
+          console.log('时间戳:', new Date(data.timestamp).toLocaleString());
+          console.log('==================================');
+          renderStatus(data);
+        } else {
+          console.warn('获取状态失败:', res.status);
+        }
       } catch (e) { console.error('Fetch status error:', e); }
     }
 
     async function fetchVisitors() {
       try {
         const res = await fetch(API_BASE + '/visitors');
-        if (res.ok) renderVisitors(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          console.log('访客数据:', data);
+          renderVisitors(data);
+        }
       } catch (e) { console.error('Fetch visitors error:', e); }
     }
 

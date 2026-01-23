@@ -1,0 +1,38 @@
+{
+  "app": "com.YostarJP.BlueArchive",
+  "appName": "BlueArchive",
+  "battery": 78,
+  "charging": false,
+  "batteryTemp": 28.5,
+  "wifi": true,
+  "wifiName": "zhanglei",
+  "bluetooth": true,
+  "screen": true,
+  "networkType": "WiFi",
+  "location": "徐州",
+  "device": "Vivo V2405A",
+  "volume": 20,
+  "brightness": 100,
+  "storage": "225/455GB",
+  "memory": "9/14GB",
+  "steps": 15385,
+  "screenTime": 1335,
+  "gameTime": 114,
+  "mood": "normal",
+  "isLateNight": false,
+  "topApps": [
+    {
+      "name": "闲鱼",
+      "minutes": 1462
+    },
+    {
+      "name": "哔哩哔哩",
+      "minutes": 325
+    },
+    {
+      "name": "微信",
+      "minutes": 183
+    }
+  ],
+  "timestamp": 1768918540293
+}

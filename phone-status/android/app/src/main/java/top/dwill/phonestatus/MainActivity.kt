@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etApiKey: EditText
     private lateinit var etInterval: EditText
     private lateinit var etStatusMessage: EditText
+    private lateinit var etAmapKey: EditText
     private lateinit var btnSave: CardView
     private lateinit var btnStart: CardView
     private lateinit var btnStop: CardView
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity() {
         etApiKey = findViewById(R.id.etApiKey)
         etInterval = findViewById(R.id.etInterval)
         etStatusMessage = findViewById(R.id.etStatusMessage)
+        etAmapKey = findViewById(R.id.etAmapKey)
         btnSave = findViewById(R.id.btnSave)
         btnStart = findViewById(R.id.btnStart)
         btnStop = findViewById(R.id.btnStop)
@@ -86,19 +88,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadConfig() {
         val prefs = getSharedPreferences("config", MODE_PRIVATE)
-        etApiUrl.setText(prefs.getString("api_url", "https://phone-status-api-v2.zhangtao3788.workers.dev/update"))
-        etApiKey.setText(prefs.getString("api_key", "dwill-status-2026-x7k9m2p4q8r1"))
+        // 使用 BuildConfig 中的默认值（根据 flavor 不同而不同）
+        etApiUrl.setText(prefs.getString("api_url", BuildConfig.DEFAULT_API_URL))
+        etApiKey.setText(prefs.getString("api_key", BuildConfig.DEFAULT_API_KEY))
         etInterval.setText(prefs.getInt("interval", 60).toString())
         etStatusMessage.setText(prefs.getString("status_message", ""))
+        etAmapKey.setText(prefs.getString("amap_key", ""))
     }
 
     private fun saveConfig() {
         val prefs = getSharedPreferences("config", MODE_PRIVATE)
+        // 确保间隔至少为 5 秒
+        var interval = etInterval.text.toString().toIntOrNull() ?: 60
+        if (interval < 5) {
+            interval = 5
+            etInterval.setText("5")
+            Toast.makeText(this, "⚠ 上报间隔最小为5秒", Toast.LENGTH_SHORT).show()
+        }
         prefs.edit().apply {
             putString("api_url", etApiUrl.text.toString())
             putString("api_key", etApiKey.text.toString())
-            putInt("interval", etInterval.text.toString().toIntOrNull() ?: 60)
+            putInt("interval", interval)
             putString("status_message", etStatusMessage.text.toString())
+            putString("amap_key", etAmapKey.text.toString())
             apply()
         }
         Toast.makeText(this, "✓ 配置已保存", Toast.LENGTH_SHORT).show()
@@ -110,6 +122,25 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.startForegroundService(this, intent)
         Toast.makeText(this, "✓ 服务已启动", Toast.LENGTH_SHORT).show()
         updateStatus()
+        
+        // 检查并请求忽略电池优化
+        requestIgnoreBatteryOptimization()
+    }
+    
+    private fun requestIgnoreBatteryOptimization() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+        if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            try {
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = android.net.Uri.parse("package:$packageName")
+                }
+                startActivity(intent)
+                Toast.makeText(this, "⚠ 请允许后台运行，否则服务可能被杀死", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                // 某些手机可能不支持这个 Intent
+                Toast.makeText(this, "⚠ 请手动到设置中允许后台运行", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun stopService() {
