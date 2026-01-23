@@ -1,9 +1,9 @@
 {
-  "app": "com.YostarJP.BlueArchive",
-  "appName": "BlueArchive",
-  "battery": 78,
+  "app": "tv.danmaku.bili",
+  "appName": "哔哩哔哩",
+  "battery": 75,
   "charging": false,
-  "batteryTemp": 28.5,
+  "batteryTemp": 24.6,
   "wifi": true,
   "wifiName": "zhanglei",
   "bluetooth": true,
@@ -11,28 +11,31 @@
   "networkType": "WiFi",
   "location": "徐州",
   "device": "Vivo V2405A",
-  "volume": 20,
+  "music": "这才是真正的抽卡游戏，随机抽一个人的银行卡",
+  "musicArtist": "面试鸭",
+  "volume": 26,
   "brightness": 100,
-  "storage": "225/455GB",
+  "storage": "228/455GB",
   "memory": "9/14GB",
-  "steps": 15385,
-  "screenTime": 1335,
-  "gameTime": 114,
-  "mood": "normal",
+  "steps": 20890,
+  "screenTime": 1059,
+  "gameTime": 221,
+  "mood": "slacking",
   "isLateNight": false,
+  "statusMessage": "Σ( ° △ °|||)︴",
   "topApps": [
     {
       "name": "闲鱼",
-      "minutes": 1462
+      "minutes": 1533
     },
     {
       "name": "哔哩哔哩",
-      "minutes": 325
+      "minutes": 238
     },
     {
-      "name": "微信",
-      "minutes": 183
+      "name": "王者荣耀",
+      "minutes": 221
     }
   ],
-  "timestamp": 1768918540293
+  "timestamp": 1769161178048
 }
