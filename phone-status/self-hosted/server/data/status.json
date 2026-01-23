@@ -1,9 +1,9 @@
 {
   "app": "tv.danmaku.bili",
   "appName": "哔哩哔哩",
-  "battery": 75,
+  "battery": 58,
   "charging": false,
-  "batteryTemp": 24.6,
+  "batteryTemp": 24.4,
   "wifi": true,
   "wifiName": "zhanglei",
   "bluetooth": true,
@@ -11,14 +11,13 @@
   "networkType": "WiFi",
   "location": "徐州",
   "device": "Vivo V2405A",
-  "music": "这才是真正的抽卡游戏，随机抽一个人的银行卡",
-  "musicArtist": "面试鸭",
-  "volume": 26,
+  "music": "武汉59元一人的烤肉自助，古鲁特，还有原切牛肉，看看怎么样",
+  "volume": 30,
   "brightness": 100,
   "storage": "228/455GB",
-  "memory": "9/14GB",
-  "steps": 20890,
-  "screenTime": 1059,
+  "memory": "10/14GB",
+  "steps": 21295,
+  "screenTime": 1183,
   "gameTime": 221,
   "mood": "slacking",
   "isLateNight": false,
@@ -26,16 +25,16 @@
   "topApps": [
     {
       "name": "闲鱼",
-      "minutes": 1533
+      "minutes": 1653
     },
     {
       "name": "哔哩哔哩",
-      "minutes": 238
+      "minutes": 305
     },
     {
       "name": "王者荣耀",
       "minutes": 221
     }
   ],
-  "timestamp": 1769161178048
+  "timestamp": 1769168618143
 }

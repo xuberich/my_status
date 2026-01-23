@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo view anthropics/skills --json description,readme)",
+      "Bash(curl -s https://raw.githubusercontent.com/anthropics/skills/main/README.md)",
+      "WebFetch(domain:skillsmp.com)"
+    ]
+  }
+}
