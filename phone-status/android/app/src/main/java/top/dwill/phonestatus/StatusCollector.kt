@@ -235,19 +235,33 @@ object StatusCollector {
         calendar.set(Calendar.SECOND, 0)
         val startTime = calendar.timeInMillis
         val endTime = System.currentTimeMillis()
-        
-        val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
-        if (stats.isNullOrEmpty()) return 0
-        
+
+        val events = usm.queryEvents(startTime, endTime)
+        val event = android.app.usage.UsageEvents.Event()
         var totalTime = 0L
-        for (stat in stats) {
-            totalTime += stat.totalTimeInForeground
+        val lastEventTime = mutableMapOf<String, Long>()
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            when (event.eventType) {
+                android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                    lastEventTime[event.packageName] = event.timeStamp
+                }
+                android.app.usage.UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                    val start = lastEventTime.remove(event.packageName)
+                    if (start != null) {
+                        totalTime += (event.timeStamp - start)
+                    }
+                }
+            }
         }
-        val minutes = (totalTime / 60000).toInt()
         
-        // 限制最大值为当天已过的分钟数（避免系统统计异常导致超过24小时）
-        val maxMinutesToday = ((endTime - startTime) / 60000).toInt()
-        return minOf(minutes, maxMinutesToday)
+        // 处理当前正在使用的 App
+        for (start in lastEventTime.values) {
+            totalTime += (endTime - start)
+        }
+
+        return (totalTime / 60000).toInt()
     }
 
     // 获取今日游戏时长（分钟）
@@ -259,14 +273,26 @@ object StatusCollector {
         calendar.set(Calendar.SECOND, 0)
         val startTime = calendar.timeInMillis
         val endTime = System.currentTimeMillis()
-        
-        val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
-        if (stats.isNullOrEmpty()) return 0
-        
+
+        val events = usm.queryEvents(startTime, endTime)
+        val event = android.app.usage.UsageEvents.Event()
         var gameTime = 0L
-        for (stat in stats) {
-            if (gamePackages.contains(stat.packageName)) {
-                gameTime += stat.totalTimeInForeground
+        val lastEventTime = mutableMapOf<String, Long>()
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            if (gamePackages.contains(event.packageName)) {
+                when (event.eventType) {
+                    android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                        lastEventTime[event.packageName] = event.timeStamp
+                    }
+                    android.app.usage.UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                        val start = lastEventTime.remove(event.packageName)
+                        if (start != null) {
+                            gameTime += (event.timeStamp - start)
+                        }
+                    }
+                }
             }
         }
         return (gameTime / 60000).toInt()
@@ -281,21 +307,32 @@ object StatusCollector {
         calendar.set(Calendar.SECOND, 0)
         val startTime = calendar.timeInMillis
         val endTime = System.currentTimeMillis()
-        
-        val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
-        if (stats.isNullOrEmpty()) return emptyList()
-        
-        val ignoredPackages = setOf("com.bbk.launcher2", "com.vivo.launcher", "com.android.systemui")
-        
-        // 先按显示名称分组合并时长，避免同一个App多个进程重复显示
+
+        val events = usm.queryEvents(startTime, endTime)
+        val event = android.app.usage.UsageEvents.Event()
         val appTimeMap = mutableMapOf<String, Long>()
-        for (stat in stats) {
-            if (stat.totalTimeInForeground > 60000 && !ignoredPackages.contains(stat.packageName)) {
-                val displayName = getAppDisplayName(stat.packageName)
-                appTimeMap[displayName] = (appTimeMap[displayName] ?: 0L) + stat.totalTimeInForeground
+        val lastEventTime = mutableMapOf<String, Long>()
+        val ignoredPackages = setOf("com.bbk.launcher2", "com.vivo.launcher", "com.android.systemui")
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            if (!ignoredPackages.contains(event.packageName)) {
+                when (event.eventType) {
+                    android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                        lastEventTime[event.packageName] = event.timeStamp
+                    }
+                    android.app.usage.UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                        val start = lastEventTime.remove(event.packageName)
+                        if (start != null) {
+                            val duration = event.timeStamp - start
+                            val displayName = getAppDisplayName(event.packageName)
+                            appTimeMap[displayName] = (appTimeMap[displayName] ?: 0L) + duration
+                        }
+                    }
+                }
             }
         }
-        
+
         return appTimeMap.entries
             .sortedByDescending { it.value }
             .take(3)

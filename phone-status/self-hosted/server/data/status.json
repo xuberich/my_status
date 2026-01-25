@@ -1,9 +1,9 @@
 {
-  "app": "tv.danmaku.bili",
-  "appName": "哔哩哔哩",
-  "battery": 40,
-  "charging": true,
-  "batteryTemp": 32.8,
+  "app": "com.vivo.translator",
+  "appName": "translator",
+  "battery": 98,
+  "charging": false,
+  "batteryTemp": 32.7,
   "wifi": true,
   "wifiName": "zhanglei",
   "bluetooth": true,
@@ -11,31 +11,31 @@
   "networkType": "WiFi",
   "location": "徐州",
   "device": "Vivo V2405A",
-  "music": "【龙妞妞她妈妈】Up主探索中，欢迎收看求三连！",
-  "musicArtist": "龙妞妞她妈妈",
-  "volume": 15,
+  "music": "什么，我把东亚地图做成MC存档放进了服务器里？————SDCMC 星尘编年史",
+  "musicArtist": "夕阳与长城",
+  "volume": 28,
   "brightness": 100,
   "storage": "228/455GB",
   "memory": "9/14GB",
-  "steps": 2382,
-  "screenTime": 1148,
-  "gameTime": 255,
-  "mood": "slacking",
+  "steps": 2448,
+  "screenTime": 562,
+  "gameTime": 102,
+  "mood": "normal",
   "isLateNight": false,
   "statusMessage": "Σ( ° △ °|||)︴",
   "topApps": [
     {
-      "name": "闲鱼",
-      "minutes": 647
-    },
-    {
       "name": "哔哩哔哩",
-      "minutes": 308
+      "minutes": 230
     },
     {
       "name": "王者荣耀",
-      "minutes": 255
+      "minutes": 102
+    },
+    {
+      "name": "微信",
+      "minutes": 88
     }
   ],
-  "timestamp": 1769339299183
+  "timestamp": 1769349057982
 }
