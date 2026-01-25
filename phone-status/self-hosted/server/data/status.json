@@ -1,6 +1,6 @@
 {
-  "app": "com.vivo.translator",
-  "appName": "translator",
+  "app": "com.tencent.mobileqq",
+  "appName": "QQ",
   "battery": 98,
   "charging": false,
   "batteryTemp": 32.7,
@@ -11,14 +11,14 @@
   "networkType": "WiFi",
   "location": "徐州",
   "device": "Vivo V2405A",
-  "music": "什么，我把东亚地图做成MC存档放进了服务器里？————SDCMC 星尘编年史",
-  "musicArtist": "夕阳与长城",
+  "music": "我看过相，“你们成不了”",
+  "musicArtist": "业余寻影人",
   "volume": 28,
   "brightness": 100,
   "storage": "228/455GB",
-  "memory": "9/14GB",
+  "memory": "10/14GB",
   "steps": 2448,
-  "screenTime": 562,
+  "screenTime": 563,
   "gameTime": 102,
   "mood": "normal",
   "isLateNight": false,
@@ -37,5 +37,5 @@
       "minutes": 88
     }
   ],
-  "timestamp": 1769349057982
+  "timestamp": 1769349118108
 }
