@@ -100,9 +100,62 @@ function toBool(val: unknown): boolean {
 app.use(cors());
 app.use(express.json());
 
-// 请求日志
-app.use((req: Request, _res: Response, next: NextFunction) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+// ANSI 颜色码
+const colors = {
+  reset: '\x1b[0m',
+  bright: '\x1b[1m',
+  dim: '\x1b[2m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m',
+  red: '\x1b[31m',
+  gray: '\x1b[90m',
+};
+
+// 方法颜色映射
+const methodColors: Record<string, string> = {
+  GET: colors.green,
+  POST: colors.yellow,
+  PUT: colors.blue,
+  DELETE: colors.red,
+  PATCH: colors.magenta,
+};
+
+// 状态码颜色
+function getStatusColor(status: number): string {
+  if (status >= 500) return colors.red;
+  if (status >= 400) return colors.yellow;
+  if (status >= 300) return colors.cyan;
+  if (status >= 200) return colors.green;
+  return colors.gray;
+}
+
+// 请求日志中间件
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const startTime = Date.now();
+  const timestamp = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+
+  // 响应完成时记录
+  res.on('finish', () => {
+    const duration = Date.now() - startTime;
+    const method = req.method;
+    const methodColor = methodColors[method] || colors.gray;
+    const statusColor = getStatusColor(res.statusCode);
+
+    // 格式化输出
+    const logLine = [
+      `${colors.dim}[${timestamp}]${colors.reset}`,
+      `${methodColor}${method.padEnd(6)}${colors.reset}`,
+      `${statusColor}${res.statusCode}${colors.reset}`,
+      `${colors.bright}${req.path}${colors.reset}`,
+      `${colors.dim}${duration}ms${colors.reset}`,
+    ].join(' ');
+
+    console.log(logLine);
+  });
+
   next();
 });
 
@@ -174,7 +227,7 @@ app.post('/api/update', async (req: Request, res: Response) => {
 
     // 保存到文件
     writeJSON(STATUS_FILE, status);
-    
+
     // 详细调试信息
     console.log(`\n========== 状态上报 ==========`);
     console.log(`App包名: ${status.app}`);
@@ -205,8 +258,8 @@ app.get('/api/status', (_req: Request, res: Response) => {
 
 // 记录访客
 app.get('/api/visit', (req: Request, res: Response) => {
-  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() 
-    || req.socket.remoteAddress 
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
+    || req.socket.remoteAddress
     || 'unknown';
   const ua = req.headers['user-agent'] || 'unknown';
   const city = (req.headers['cf-ipcity'] as string) || ''; // Cloudflare 头，可能为空
@@ -293,14 +346,28 @@ app.get('*', (_req: Request, res: Response) => {
 // 监听 0.0.0.0 以接受来自局域网其他设备的连接
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`
-╔═══════════════════════════════════════════════════════╗
-║           📱 Phone Status Server Started              ║
-╠═══════════════════════════════════════════════════════╣
-║  Host:     0.0.0.0 (接受所有网络连接)                  ║
-║  Port:     ${String(PORT).padEnd(42)}║
-║  API Key:  ${API_KEY.substring(0, 10)}...${' '.repeat(30)}║
-║  Data:     ${DATA_DIR.padEnd(42)}║
-║  Frontend: ${FRONTEND_DIR.padEnd(42)}║
-╚═══════════════════════════════════════════════════════╝
+${colors.cyan}╔═══════════════════════════════════════════════════════════════╗${colors.reset}
+${colors.cyan}║${colors.reset}           ${colors.bright}📱 Phone Status Server Started${colors.reset}                      ${colors.cyan}║${colors.reset}
+${colors.cyan}╠═══════════════════════════════════════════════════════════════╣${colors.reset}
+${colors.cyan}║${colors.reset}                                                               ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.green}➜${colors.reset}  ${colors.bright}Local:${colors.reset}   ${colors.cyan}http://localhost:${PORT}${colors.reset}                           ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.dim}➜${colors.reset}  ${colors.dim}Network:${colors.reset} ${colors.dim}http://0.0.0.0:${PORT}${colors.reset}                             ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}                                                               ${colors.cyan}║${colors.reset}
+${colors.cyan}╠═══════════════════════════════════════════════════════════════╣${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.yellow}API Endpoints:${colors.reset}                                              ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.green}GET ${colors.reset} /api/status     ${colors.dim}获取当前状态${colors.reset}                        ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.yellow}POST${colors.reset} /api/update     ${colors.dim}上报状态 (需 Bearer Token)${colors.reset}            ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.green}GET ${colors.reset} /api/visit      ${colors.dim}记录访客${colors.reset}                            ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.green}GET ${colors.reset} /api/visitors   ${colors.dim}获取访客统计${colors.reset}                        ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.green}GET ${colors.reset} /api/test       ${colors.dim}测试接口${colors.reset}                            ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}                                                               ${colors.cyan}║${colors.reset}
+${colors.cyan}╠═══════════════════════════════════════════════════════════════╣${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.dim}API Key:${colors.reset}  ${API_KEY.substring(0, 20)}...                          ${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.dim}Data:${colors.reset}     ${DATA_DIR.length > 45 ? '...' + DATA_DIR.slice(-42) : DATA_DIR.padEnd(45)}${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}  ${colors.dim}Frontend:${colors.reset} ${FRONTEND_DIR.length > 45 ? '...' + FRONTEND_DIR.slice(-42) : FRONTEND_DIR.padEnd(45)}${colors.cyan}║${colors.reset}
+${colors.cyan}║${colors.reset}                                                               ${colors.cyan}║${colors.reset}
+${colors.cyan}╚═══════════════════════════════════════════════════════════════╝${colors.reset}
+
+${colors.dim}Press Ctrl+C to stop${colors.reset}
   `);
 });

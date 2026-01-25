@@ -1,9 +1,9 @@
 {
   "app": "tv.danmaku.bili",
   "appName": "哔哩哔哩",
-  "battery": 58,
-  "charging": false,
-  "batteryTemp": 24.4,
+  "battery": 40,
+  "charging": true,
+  "batteryTemp": 32.8,
   "wifi": true,
   "wifiName": "zhanglei",
   "bluetooth": true,
@@ -11,30 +11,31 @@
   "networkType": "WiFi",
   "location": "徐州",
   "device": "Vivo V2405A",
-  "music": "武汉59元一人的烤肉自助，古鲁特，还有原切牛肉，看看怎么样",
-  "volume": 30,
+  "music": "【龙妞妞她妈妈】Up主探索中，欢迎收看求三连！",
+  "musicArtist": "龙妞妞她妈妈",
+  "volume": 15,
   "brightness": 100,
   "storage": "228/455GB",
-  "memory": "10/14GB",
-  "steps": 21295,
-  "screenTime": 1183,
-  "gameTime": 221,
+  "memory": "9/14GB",
+  "steps": 2382,
+  "screenTime": 1148,
+  "gameTime": 255,
   "mood": "slacking",
   "isLateNight": false,
   "statusMessage": "Σ( ° △ °|||)︴",
   "topApps": [
     {
       "name": "闲鱼",
-      "minutes": 1653
+      "minutes": 647
     },
     {
       "name": "哔哩哔哩",
-      "minutes": 305
+      "minutes": 308
     },
     {
       "name": "王者荣耀",
-      "minutes": 221
+      "minutes": 255
     }
   ],
-  "timestamp": 1769168618143
+  "timestamp": 1769339299183
 }

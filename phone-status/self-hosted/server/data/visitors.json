@@ -4,7 +4,7 @@
       "ip": "127.0.***",
       "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
       "city": "",
-      "lastVisit": 1769168588877,
+      "lastVisit": 1769338536692,
       "visits": 1
     },
     {
@@ -16,7 +16,7 @@
     }
   ],
   "today": {
-    "date": "2026-01-23",
+    "date": "2026-01-25",
     "ips": [
       "127.0.0.1"
     ]
