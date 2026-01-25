@@ -1,9 +1,9 @@
 {
-  "app": "com.tencent.mobileqq",
-  "appName": "QQ",
-  "battery": 98,
+  "app": "tv.danmaku.bili",
+  "appName": "哔哩哔哩",
+  "battery": 95,
   "charging": false,
-  "batteryTemp": 32.7,
+  "batteryTemp": 32.1,
   "wifi": true,
   "wifiName": "zhanglei",
   "bluetooth": true,
@@ -11,31 +11,29 @@
   "networkType": "WiFi",
   "location": "徐州",
   "device": "Vivo V2405A",
-  "music": "我看过相，“你们成不了”",
-  "musicArtist": "业余寻影人",
-  "volume": 28,
+  "volume": 15,
   "brightness": 100,
   "storage": "228/455GB",
-  "memory": "10/14GB",
-  "steps": 2448,
-  "screenTime": 563,
-  "gameTime": 102,
-  "mood": "normal",
+  "memory": "9/14GB",
+  "steps": 2471,
+  "screenTime": 575,
+  "gameTime": 104,
+  "mood": "slacking",
   "isLateNight": false,
   "statusMessage": "Σ( ° △ °|||)︴",
   "topApps": [
     {
       "name": "哔哩哔哩",
-      "minutes": 230
+      "minutes": 238
     },
     {
       "name": "王者荣耀",
-      "minutes": 102
+      "minutes": 104
     },
     {
       "name": "微信",
-      "minutes": 88
+      "minutes": 90
     }
   ],
-  "timestamp": 1769349118108
+  "timestamp": 1769349839355
 }

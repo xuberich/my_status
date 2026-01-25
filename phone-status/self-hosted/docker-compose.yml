@@ -6,25 +6,18 @@ services:
       context: ..
       dockerfile: self-hosted/Dockerfile
     container_name: phone-status
-    restart: unless-stopped
+    restart: always
     ports:
-      - "9529:9529"
+      - "9529:9529" # 宿主机 9529 供 Caddy 反代
     environment:
       - NODE_ENV=production
       - PORT=9529
       - API_KEY=${API_KEY:-dwill-status-2026-x7k9m2p4q8r1}
       - TZ=Asia/Shanghai
     volumes:
-      # 数据持久化
-      - phone-status-data:/app/data
+      - ./data:/app/data # 将数据持久化到当前目录下的 data 文件夹
     networks:
       - phone-status-net
-    labels:
-      - "com.docker.compose.project=phone-status"
-
-volumes:
-  phone-status-data:
-    driver: local
 
 networks:
   phone-status-net:
