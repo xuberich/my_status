@@ -14,12 +14,12 @@
 ### 🖥️ Web 端 (PC & Mobile)
 | PC 浏览器视图 | 移动端浏览器视图 |
 | :---: | :---: |
-| ![Web PC](./docs/images/web_pc.png) | ![Web Mobile](./docs/images/web_mobile.png) |
+| ![Web PC](./phone-status/docs/images/web_pc.png) | ![Web Mobile](./phone-status/docs/images/web_mobile.png) |
 
 ### 📱 Android 客户端 (EgoGaze App)
 | 状态同步 App | 实时数据详情 |
 | :---: | :---: |
-| ![App Main](./docs/images/app_main.jpg) | ![App Detail](./docs/images/app_detail.jpg) |
+| ![App Main](./phone-status/docs/images/app_main.jpg) | ![App Detail](./phone-status/docs/images/app_detail.jpg) |
 
 ## ✨ 功能特性
 
@@ -41,7 +41,7 @@
   cd phone-status/self-hosted
   docker-compose up -d --build
   ```
-- **配置说明**：默认运行在 `9529` 端口。[点击查看详细的反代与配置指南](./self-hosted/README.md)。
+- **[点击查看详细的反代与配置指南](./phone-status/self-hosted/README.md)**。
 
 ### 2. 手机端 App 部署 (Android) - 核心
 这是数据同步的源头，必须正确配置并安装。
@@ -55,10 +55,10 @@
   2. 输入 API Key（默认在 `docker-compose.yml` 中设置）。
   3. **[重要] 赋予权限**：点击 App 中的权限检查项，手动开启“忽略电池优化”、“使用情况访问”及“通知监听”。
   4. 点击 **[启动服务]**。
-- **[点击查看：Android 保活与避坑指南](./docs/android_pitfalls.md)**
+- **[点击查看：Android 保活与避坑指南](./phone-status/docs/android_pitfalls.md)**
 
 ### 3. 零成本方案：Cloudflare 部署
-适合没有公网 IP 的用户。[点击查看：Cloudflare 部署教程](./docs/cloudflare_deploy.md)。
+适合没有公网 IP 的用户。[点击查看：Cloudflare 部署教程](./phone-status/docs/cloudflare_deploy.md)。
 
 ---
 
@@ -69,7 +69,7 @@
 - **Server**: Node.js 18+ (服务端使用 TypeScript 开发)。
 
 ### 2. 开发者文档
-- **[本地开发环境搭建](./docs/local_debug.md)**
+- **[本地开发环境搭建](./phone-status/docs/local_debug.md)**
 
 
 ## 📜 许可证 (License)
