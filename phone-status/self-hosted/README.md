@@ -1,6 +1,6 @@
-# 📱 Phone Status - 自托管部署指南
+# 📱 EgoGaze - 自托管部署指南
 
-本目录包含 Phone Status 的 Docker 自托管版本，适用于国内服务器部署。
+本目录包含 EgoGaze 的 Docker 自托管版本，适用于私有服务器或 NAS 部署。
 
 ## 🏗️ 架构
 
