@@ -1,23 +1,23 @@
 package top.dwill.phonestatus
 
-import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.os.PowerManager
-import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -30,7 +30,6 @@ class StatusService : Service() {
     companion object {
         const val CHANNEL_ID = "phone_status_channel"
         const val NOTIFICATION_ID = 1
-        const val ACTION_UPLOAD = "top.dwill.phonestatus.ACTION_UPLOAD"
         var isRunning = false
         var currentMusic: String? = null
         var currentMusicArtist: String? = null
@@ -46,6 +45,7 @@ class StatusService : Service() {
     private val gson = Gson()
     private var intervalMs = 60000L
     private var wakeLock: PowerManager.WakeLock? = null
+    private var uploadJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -71,52 +71,26 @@ class StatusService : Service() {
         Log.d("StatusService", "上报间隔设置为: ${intervalMs}ms (${interval}秒)")
         statusMessage = prefs.getString("status_message", "") ?: ""
         startForeground(NOTIFICATION_ID, createNotification())
-        
-        // 检查是否是定时触发的上传
-        if (intent?.action == ACTION_UPLOAD) {
-            Log.d("StatusService", "AlarmManager 触发上传")
-            scope.launch { uploadStatus() }
-        }
-        
-        // 设置下一次上传的闹钟
-        scheduleNextUpload()
+        startUploadLoop()
         
         return START_STICKY
     }
 
-    private fun scheduleNextUpload() {
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, StatusService::class.java).apply {
-            action = ACTION_UPLOAD
+    private fun startUploadLoop() {
+        uploadJob?.cancel()
+        uploadJob = scope.launch {
+            Log.d("StatusService", "启动前台循环上报")
+            while (isActive) {
+                uploadStatus()
+                delay(intervalMs)
+            }
         }
-        val pendingIntent = PendingIntent.getService(
-            this, 0, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        
-        // 使用 setExactAndAllowWhileIdle 确保在 Doze 模式下也能触发
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + intervalMs,
-            pendingIntent
-        )
-        Log.d("StatusService", "下次上传已调度: ${intervalMs/1000}秒后")
     }
 
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
-        
-        // 取消闹钟
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, StatusService::class.java).apply {
-            action = ACTION_UPLOAD
-        }
-        val pendingIntent = PendingIntent.getService(
-            this, 0, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        alarmManager.cancel(pendingIntent)
+        uploadJob?.cancel()
         
         // 释放 WakeLock
         wakeLock?.let {

@@ -99,6 +99,12 @@ function toBool(val: unknown): boolean {
 
 app.use(cors());
 app.use(express.json());
+app.use('/api', (_req: Request, res: Response, next: NextFunction) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
 
 // ANSI 颜色码
 const colors = {
