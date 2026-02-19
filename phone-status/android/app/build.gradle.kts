@@ -21,14 +21,14 @@ android {
         create("cf") {
             dimension = "server"
             buildConfigField("String", "DEFAULT_API_URL", "\"https://phone-status-api-v2.zhangtao3788.workers.dev/update\"")
-            buildConfigField("String", "DEFAULT_API_KEY", "\"dwill-status-2026-x7k9m2p4q8r1\"")
+            buildConfigField("String", "DEFAULT_API_KEY", "\"CHANGE_ME\"")
         }
         create("selfhosted") {
             dimension = "server"
             applicationIdSuffix = ".selfhosted"
-            // 本地测试：改成你电脑的局域网 IP；部署后改成实际域名
-            buildConfigField("String", "DEFAULT_API_URL", "\"http://192.168.10.104:9529/api/update\"")
-            buildConfigField("String", "DEFAULT_API_KEY", "\"dwill-status-2026-x7k9m2p4q8r1\"")
+            // 示例默认值：请在 App 中改成你的实际地址
+            buildConfigField("String", "DEFAULT_API_URL", "\"https://status.example.com/api/update\"")
+            buildConfigField("String", "DEFAULT_API_KEY", "\"CHANGE_ME\"")
         }
     }
 

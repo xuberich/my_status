@@ -57,4 +57,5 @@ captures/
 # ===== Self-hosted =====
 # 不提交本地生产环境配置
 phone-status/self-hosted/.env
+phone-status/NETWORK_KNOWLEDGE.md
 phone-status/self-hosted/data/
