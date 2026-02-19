@@ -4,6 +4,10 @@
 
 **EgoGaze (自我凝视)** 是一个简洁、优雅、完全自托管的个人数字自画像系统。它将你手机的物理状态实时“镜像”到网页端，包括电量、位置、步数、应用使用时长及音乐律动。
 
+## 🔎 关键词 (Keywords)
+
+`self-hosted` `android` `phone-status` `status-dashboard` `real-time` `usage-stats` `battery-monitor` `location-tracking` `step-counter` `music-now-playing` `docker` `cloudflare-workers`
+
 ## 🔗 实时预览 (Live Demo)
 
 - **访问地址**：[https://status.dwill.top](https://status.dwill.top)
