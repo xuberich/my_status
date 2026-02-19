@@ -6,8 +6,7 @@
 
 ## 🔗 实时预览 (Live Demo)
 
-- **访问地址**：[https://s.dwill.top](https://s.dwill.top)
-- **⚡ 重要说明**：由于服务端采用纯 IPv6 环境部署，请确保访问端（手机流量、热点或 IPv6 WiFi）已开启 IPv6 支持。
+- **访问地址**：[https://status.dwill.top](https://status.dwill.top)
 
 ## 📸 项目预览 (Screenshots)
 
@@ -51,7 +50,7 @@
   2. 在左下角 `Build Variants` 中选择 **`selfhostedDebug`**。
   3. 编译并安装 APK 到手机。
 - **初始化配置**：
-  1. 打开 App，输入你的 API 地址（例如 `https://s.dwill.top/api/update`）。
+  1. 打开 App，输入你的 API 地址（例如 `https://status.dwill.top/api/update`）。
   2. 输入 API Key（默认在 `docker-compose.yml` 中设置）。
   3. **[重要] 赋予权限**：点击 App 中的权限检查项，手动开启“忽略电池优化”、“使用情况访问”及“通知监听”。
   4. 点击 **[启动服务]**。

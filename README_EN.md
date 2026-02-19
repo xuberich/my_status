@@ -6,8 +6,7 @@
 
 ## 🔗 Live Preview
 
-- **Access**: [https://s.dwill.top](https://s.dwill.top)
-- **⚡ Important**: Since the server is deployed in a pure IPv6 environment, please ensure your client (mobile data, hotspot, or IPv6-enabled WiFi) has IPv6 support.
+- **Access**: [https://status.dwill.top](https://status.dwill.top)
 
 ## 📸 Screenshots
 
@@ -51,7 +50,7 @@ The source of all data. Must be correctly configured.
   2. Select **`selfhostedDebug`** in the `Build Variants` panel.
   3. Build and install the APK.
 - **Initial Setup**:
-  1. Open App, enter your API URL (e.g., `https://s.dwill.top/api/update`).
+  1. Open App, enter your API URL (e.g., `https://status.dwill.top/api/update`).
   2. Enter API Key (default in `docker-compose.yml`).
   3. **[Important] Permissions**: Grant "Ignore Battery Optimization", "Usage Access", and "Notification Listener".
   4. Tap **[Start Service]**.
