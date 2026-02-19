@@ -4,6 +4,10 @@
 
 **EgoGaze** is a sleek, elegant, and fully self-hosted personal digital portrait system. It mirrors your phone's physical state to a web interface in real-time, including battery level, location, step count, app usage duration, and music playback.
 
+## Keywords
+
+`self-hosted` `android` `phone-status` `status-dashboard` `real-time` `usage-stats` `battery-monitor` `location-tracking` `step-counter` `docker` `cloudflare-workers`
+
 ## 🔗 Live Preview
 
 - **Access**: [https://status.dwill.top](https://status.dwill.top)
